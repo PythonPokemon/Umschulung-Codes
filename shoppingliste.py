@@ -1,54 +1,62 @@
-# NOTE: Beim Beenden des Skripts wird die Einkaufsliste gelöscht -> später Inhalt in Datei/Datenbank speichern
-# 
-# Wunschfunktionen:
-# - Wie ist das eigentlich mit Gramm bzw. Gewichtsangaben? -> TODO später
-# - Einkäufe gruppieren (List in List?)
+import sqlite3
 
+# Verbindung zur SQLite-Datenbank herstellen
+conn = sqlite3.connect('shopping_list.db')
+cursor = conn.cursor()
 
+# Tabelle erstellen, wenn sie nicht existiert
+cursor.execute('''
+    CREATE TABLE IF NOT EXISTS shopping_list (
+        id INTEGER PRIMARY KEY,
+        item TEXT
+    )
+''')
+conn.commit()
+
+# Initialisierung der Einkaufsliste
 shopping_list = []
+
+# Funktion zur Aktualisierung der Anzeige der Einkaufsliste
+def aktualisiere_anzeige():
+    cursor.execute('SELECT * FROM shopping_list')
+    rows = cursor.fetchall()
+    print("Inhalt der Einkaufsliste: \n")
+    for row in rows:
+        print("[" + str(row[0]) + "]", row[1])
+
+# Funktion zur Aktualisierung der Anzeige der Einkaufsliste
+def aktualisiere_anzeige():
+    cursor.execute('SELECT * FROM shopping_list')
+    rows = cursor.fetchall()
+    print("Inhalt der Einkaufsliste: \n")
+    for row in rows:
+        print("[" + str(row[0]) + "]", row[1])
 
 # Funktionsdeklarationen
 
-def hinzufügen_artikel(article): # artikel hinzufügen
-    '''Artkel zur Shopping Liste hinzufügen'''
+def hinzufügen_artikel(article):
+    '''Artikel zur Einkaufsliste hinzufügen und in die Datenbank einfügen'''
     shopping_list.append(article)
+    cursor.execute('INSERT INTO shopping_list (item) VALUES (?)', (article,))
+    conn.commit()
 
-
-def frag_nutzer_ob_artikel_hinzuzufügen(): # frag nutzer um artikel hinzu
-    '''Benutzer nach Artikel fragen und diesen der shopping list hinzufügen'''
+def frag_nutzer_ob_artikel_hinzuzufügen():
+    '''Benutzer nach einem Artikel fragen und diesen zur Einkaufsliste hinzufügen'''
     article = input("Bitte einen Artikel eingeben, der der Einkaufsliste hinzugefügt werden soll: ")
     hinzufügen_artikel(article)
 
-
-def ausgabe_shopping_liste(): #ausgabe shopping liste
-    print("Inhalt der Einkaufsliste: \n")
-    for index, article in enumerate(shopping_list):
-        print("[" + str(index + 1) + "]", article)
-
-# Artikle aus Liste entfernen
-# pop() nutzen, da Benutzer später nur Index angeben soll, nicht Namen des Artikels
 def entfern_artikel_aus_liste(index):
-    shopping_list.pop(index)
-
-
-def frag_nutzer_ob_artikel_entfernt_werden_soll():
-    '''Benutzer nach Artikel fragen und diesen aus der shopping list entfernen'''
-    article_index = input("Bitte den Index des Artikels eingeben, der aus der Einkaufsliste entfernt werden soll: ")
-    try:
-        entfern_artikel_aus_liste(int(article_index) - 1)
-    except IndexError:
+    cursor.execute('SELECT * FROM shopping_list')
+    rows = cursor.fetchall()
+    if 1 <= index + 1 <= len(rows):
+        cursor.execute('DELETE FROM shopping_list WHERE id = ?', (index + 1,))
+        conn.commit()
+    else:
         print("\nERROR: Unter dem angegebenen Index ist kein Artikel in der Liste zu finden")
-    except ValueError:
-        print("\nERROR: Bitte einen passenden Index als Ziffer angeben")
-    except Exception as e:
-        print("\nERROR: Folgender Fehler ist aufgetreten: " + e.args[0])
 
+# Benutzerinteraktion - Logik des Skripts
 
-# Funktionsaufrufe - Logik unseres Skripts
-
-# Benutzer nach Aktion fragen
-
-print("--- Dies ist eine simple aber coole Einkaufsliste ---\n")
+print("--- Dies ist eine einfache Einkaufsliste ---\n")
 
 menu_txt = """
 Was möchtest du machen:
@@ -58,25 +66,22 @@ Was möchtest du machen:
       [3] Artikel entfernen
       ---------------------
       [4] Programm beenden
-
 """
-
 
 while True:
     user_input = input(menu_txt + "\n")
     if user_input == '1':
         frag_nutzer_ob_artikel_hinzuzufügen()
     elif user_input == '2':
-     ausgabe_shopping_liste()
+        aktualisiere_anzeige()
     elif user_input == '3':
-        frag_nutzer_ob_artikel_entfernt_werden_soll()
+        article_index = input("Bitte den Index des Artikels eingeben, der aus der Einkaufsliste entfernt werden soll: ")
+        try:
+            entfern_artikel_aus_liste(int(article_index) - 1)
+        except ValueError:
+            print("\nERROR: Bitte einen passenden Index als Ziffer angeben")
     elif user_input == '4':
-        exit(0)  # erfolgreich beendet
+        conn.close()
+        exit(0)  # Erfolgreich beendet
     else:
         print("Ungültige Eingabe")
-        # exit(1)  # nicht erfolgreich beendet
-
-print(shopping_list)
-# - Gurken
-# - Tomaten
-# - Bier 
