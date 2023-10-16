@@ -1,0 +1,16 @@
+digraph "ER Diagram" {
+	compound=true
+	Inhaber [label="Inhaber
+InhaberID (PK)
+Name
+Vorname"]
+	Typ [label="Typ
+TypID (PK)
+Typ"]
+	Konto [label="Konto
+KontoID (PK)
+Eröffnungsdatum
+Kontostand"]
+	Inhaber -> Konto [label="1 to many"]
+	Typ -> Konto [label="1 to 1"]
+}

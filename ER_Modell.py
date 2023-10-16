@@ -1,65 +1,69 @@
-from sqlalchemy import create_engine, Column, Integer, String, Date, ForeignKey
-from sqlalchemy.orm import sessionmaker, relationship
-from sqlalchemy.ext.declarative import declarative_base
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
-from kivy.uix.button import Button
-from kivy.uix.textinput import TextInput
+from kivy.uix.widget import Widget
+from kivy.graphics import Color, Rectangle, Line
 
+class EntitySymbol(Widget):
+    def __init__(self, name, attributes, **kwargs):
+        super(EntitySymbol, self).__init__(**kwargs)
+        self.add_entity_symbol()
+        self.add_widget(Label(text=name, pos=(self.x, self.top), size=self.size, font_size=18))
+        for attribute in attributes:
+            self.add_widget(Label(text=attribute, font_size=14))
 
-Base = declarative_base()
+    def add_entity_symbol(self):
+        with self.canvas:
+            Color(0.7, 0.7, 1, 0.7)  # Helle Blaue Farbe mit Transparenz
+            Rectangle(pos=self.pos, size=self.size)
+            Color(0, 0, 0, 1)  # Schwarze Farbe
+            Line(rectangle=(self.x, self.y, self.width, self.height))
 
-class Inhaber(Base):
-    __tablename__ = 'Inhaber'
+class RelationshipSymbol(Widget):
+    def __init__(self, name, cardinality, **kwargs):
+        super(RelationshipSymbol, self).__init__(**kwargs)
+        self.add_relationship_symbol()
+        self.add_widget(Label(text=name, pos=(self.x, self.top), size=self.size, font_size=18))
+        self.add_widget(Label(text=cardinality, font_size=14))
 
-    InhaberID = Column(Integer, primary_key=True)
-    Name = Column(String)
-    Vorname = Column(String)
+    def add_relationship_symbol(self):
+        with self.canvas:
+            Color(1, 0.7, 0.7, 0.7)  # Helle Rote Farbe mit Transparenz
+            Rectangle(pos=self.pos, size=self.size)
+            Color(0, 0, 0, 1)  # Schwarze Farbe
+            Line(rectangle=(self.x, self.y, self.width, self.height))
 
-    konten = relationship("Konto", back_populates="inhaber")
+class AttributeSymbol(Widget):
+    def __init__(self, name, **kwargs):
+        super(AttributeSymbol, self).__init__(**kwargs)
+        self.add_attribute_symbol()
+        self.add_widget(Label(text=name, pos=(self.x, self.top), size=self.size, font_size=14))
 
-class Typ(Base):
-    __tablename__ = 'Typ'
+    def add_attribute_symbol(self):
+        with self.canvas:
+            Color(0.7, 1, 0.7, 0.7)  # Helle Grüne Farbe mit Transparenz
+            Rectangle(pos=self.pos, size=self.size)
+            Color(0, 0, 0, 1)  # Schwarze Farbe
+            Line(rectangle=(self.x, self.y, self.width, self.height))
 
-    TypID = Column(Integer, primary_key=True)
-    Typ = Column(String)
-
-    konten = relationship("Konto", back_populates="typ")
-
-class Konto(Base):
-    __tablename__ = 'Konto'
-
-    KontoID = Column(Integer, primary_key=True)
-    InhaberID = Column(Integer, ForeignKey('Inhaber.InhaberID'))
-    Eröffnungsdatum = Column(Date)
-    Kontostand = Column(Integer)
-    TypID = Column(Integer, ForeignKey('Typ.TypID'))
-
-    inhaber = relationship("Inhaber", back_populates="konten")
-    typ = relationship("Typ", back_populates="konten")
-
-# Erstellen einer SQLite-Datenbank und Verbindung
-engine = create_engine('sqlite:///bank.db', echo=True)
-Base.metadata.create_all(engine)
-
-# Erstellen einer Session
-Session = sessionmaker(bind=engine)
-session = Session()
-
-class BankApp(App):
+class ERDiagram(App):
     def build(self):
-        layout = BoxLayout(orientation='vertical')
-        self.output_label = Label(text="Konto-Datenbank")
-        self.add_button = Button(text="Konto hinzufügen")
-        self.add_button.bind(on_release=self.add_konto)
-        layout.add_widget(self.output_label)
-        layout.add_widget(self.add_button)
+        layout = BoxLayout(orientation='horizontal', padding=10, spacing=10)
+
+        entity_attributes = ["Attribute 1", "Attribute 2", "Attribute 3"]
+        entity = EntitySymbol(name="Entity", attributes=entity_attributes, size_hint=(None, None), size=(150, 100))
+
+        relationship = RelationshipSymbol(name="Relationship", cardinality="1 : 1", size_hint=(None, None), size=(150, 150))
+
+        attribute1 = AttributeSymbol(name="Attribute 4", size_hint=(None, None), size=(100, 50))
+        attribute2 = AttributeSymbol(name="Attribute 5", size_hint=(None, None), size=(100, 50))
+
+        layout.add_widget(entity)
+        layout.add_widget(relationship)
+        layout.add_widget(attribute1)
+        layout.add_widget(attribute2)
+
         return layout
 
-    def add_konto(self, instance):
-        # Hier können Sie Logik zum Hinzufügen von Konten zur Datenbank hinzufügen
-        pass
-
 if __name__ == '__main__':
-    BankApp().run()
+    ERDiagram().run()
