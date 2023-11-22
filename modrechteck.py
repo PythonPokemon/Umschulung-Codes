@@ -13,12 +13,3 @@ def ausgabe(a,b,U,A):
     print("hat einen Umfang:",U, "cm")
     print("und eine Fläche von:",A,"cm².")
 
-# Hauptprogramm
-# EINGABE
-Länge, Breite = eingabe()
-
-# VERARBEITUNG
-Umfang, Fläche=kalk(Länge,Breite)
-
-# AUSGABE
-ausgabe(Länge, Breite, Umfang, Fläche)
