@@ -1,19 +1,24 @@
-def berechne_rechteck_fläche(länge, breite):
-    fläche = länge * breite
-    return fläche
+def eingabe():
+    a=float(input("Bitte die Länge des Rechtecks in cm eingeben:"))
+    b=float(input("Bitte die Breite des Rechtecks in cm eingeben:"))
+    return a,b
 
-def berechne_rechteck_umfang(länge, breite):
-    umfang = 2 * (länge + breite)
-    return umfang
+def kalk(a,b):
+    U=2*a+2*b # Umfang ermitteln
+    A=a*b #Fläche ermitteln
+    return U,A
 
-# Beispielwerte
-länge = float(input("Gib die Länge des Rechtecks ein: "))
-breite = float(input("Gib die Breite des Rechtecks ein: "))
+def ausgabe(a,b,U,A):
+    print("Der Rechteck mit der Länge",a,"und der Breite",b)
+    print("hat einen Umfang:",U, "cm")
+    print("und eine Fläche von:",A,"cm².")
 
-# Flächen- und Umfangsberechnung aufrufen
-fläche = berechne_rechteck_fläche(länge, breite)
-umfang = berechne_rechteck_umfang(länge, breite)
+# Hauptprogramm
+# EINGABE
+Länge, Breite = eingabe()
 
-# Ergebnisse ausgeben
-print("Die Fläche des Rechtecks beträgt:", fläche)
-print("Der Umfang des Rechtecks beträgt:", umfang)
+# VERARBEITUNG
+Umfang, Fläche=kalk(Länge,Breite)
+
+# AUSGABE
+ausgabe(Länge, Breite, Umfang, Fläche)
